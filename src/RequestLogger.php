@@ -16,7 +16,7 @@ class RequestLogger implements HttpKernelInterface
     protected $app;
 
     /**
-     * Create a new RateLimiter instance.
+     * Create a new RequestLogger instance.
      *
      * @param  \Symfony\Component\HttpKernel\HttpKernelInterface  $app
      * @return void
@@ -27,7 +27,7 @@ class RequestLogger implements HttpKernelInterface
     }
 
     /**
-     * Handle the given request and get the response.
+     * Handle the given request, get the response and log information about it.
      *
      * @implements HttpKernelInterface::handle
      *
@@ -43,8 +43,15 @@ class RequestLogger implements HttpKernelInterface
         $response = $this->app->handle($request, $type, $catch);
         $time_elapsed_secs = microtime(true) - $start;
 
+        $uri = $request->getRequestUri();
+        $method = $request->getMethod();
+
         \Log::info('app.requests', [
-            'req' => $request->all(),
+            'req' => [
+                'method' => $method,
+                'url' => $uri,
+                'body' => (!$this->isAuthRoute($uri) && $method == "POST") ? $request->getContent() : 'Hidden For Auth Route'
+            ],
             'res' => [
                 'time' => $time_elapsed_secs,
                 'status' => $response->getStatusCode()
@@ -54,6 +61,10 @@ class RequestLogger implements HttpKernelInterface
         return $response;
     }
 
+    public function isAuthRoute($uri)
+    {
+        return preg_match('/(auth|login)/', $uri) !== 0;
+    }
 
 
 }
