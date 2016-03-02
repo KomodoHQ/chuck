@@ -53,7 +53,7 @@ class RequestLogger implements HttpKernelInterface
                 'body' => ($this->isAuthRoute($uri) && $method == "POST") ? 'Hidden For Auth Route' : $request->getContent()
             ],
             'res' => [
-                'time' => $time_elapsed_secs,
+                'time' => $time_elapsed_secs * 1000,
                 'status' => $response->getStatusCode()
             ]
         ]);
