@@ -8,6 +8,8 @@ class RequestLoggerProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->middleware(new RequestLogger($this->app));
+        $this->app->singleton(\Chuck\RequestLogger::class, function ($app) {
+            return new \Chuck\RequestLogger($app);
+        });
     }
 }
